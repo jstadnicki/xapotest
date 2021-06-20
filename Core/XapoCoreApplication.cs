@@ -81,13 +81,12 @@ namespace Core
             var currency = price.Bpi[command.Currency.ToString()];
 
             var currentRate = decimal.Parse(currency.Rate, CultureInfo.InvariantCulture);
-            var btcToBuy = Math.Round(command.Amount / currentRate, 8);
+            var btcToBuy = Math.Round(command.Amount / currentRate, 8, MidpointRounding.ToZero);
 
             if (btcToBuy + _currentBtc < BtcLimit)
             {
                 var actualCharge = btcToBuy * currentRate;
                 StoreBtcAsync(command, btcToBuy, actualCharge);
-                _currentBtc += btcToBuy;
             }
             //else
             // ? notify person about limit reach

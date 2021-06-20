@@ -31,18 +31,14 @@ namespace Front.Controllers
             return Ok();
         }
         
-        // [HttpPost]
-        // [ProducesResponseType(200)]
-        // [ProducesResponseType(500)]
-        // public async Task<List<Order>> Get()
-        // {
-        //     var request = new OrdersQuery();
-        //     var orders = await _mediator.Send(request);
-        //     return orders;
-        // }
-    }
-
-    public class Order
-    {
+        [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(500)]
+        public async Task<List<XapoTransaction>> Get()
+        {
+            var request = new OrdersQuery();
+            var orders = await _mediator.Send(request);
+            return orders;
+        }
     }
 }

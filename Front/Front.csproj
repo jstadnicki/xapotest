@@ -20,4 +20,7 @@
       <ProjectReference Include="..\XapoWrappers\XapoWrappers.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+    </ItemGroup>
+
 </Project>

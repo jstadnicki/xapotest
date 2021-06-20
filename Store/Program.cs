@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Common;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,10 +45,13 @@ namespace Core
         private readonly IJsonSerializer _json;
         private readonly List<StoreCommand> _store = new List<StoreCommand>();
         private readonly ConnectionFactory _factory;
+        private decimal _btcLevel;
+        private readonly IXapoQueue _queue;
 
-        public XapoStoreApplication(IJsonSerializer json)
+        public XapoStoreApplication(IJsonSerializer json, IXapoQueue queue)
         {
             _json = json;
+            _queue = queue;
             _factory = new ConnectionFactory() {HostName = "localhost"};
         }
 
@@ -71,7 +75,7 @@ namespace Core
             channel.BasicConsume(queue: StoreCommand.QueueName,
                 autoAck: true,
                 consumer: consumer);
-
+            
             Console.ReadLine();
         }
 
@@ -79,7 +83,21 @@ namespace Core
         {
             var json = Encoding.UTF8.GetString(e.Body.ToArray());
             var command = _json.Deserialize<StoreCommand>(json);
-            _store.Add(command);
+            if (command.BtcAmount + _btcLevel <= 100)
+            {
+                _store.Add(command);
+                _btcLevel = _store.Sum(x => x.BtcAmount);
+                UpdateBtcStatus();
+            }
+        }
+
+        private void UpdateBtcStatus()
+        {
+            var updateCurrentBtcLevel = new UpdateCurrentBtcLevel
+            {
+                CurrentLevel = _btcLevel
+            };
+            _queue.Send(updateCurrentBtcLevel, UpdateCurrentBtcLevel.QueueName);
         }
     }
 
@@ -92,5 +110,11 @@ namespace Core
         public Guid PersonId { get; set; }
         public static string QueueName => "StoreCommand";
         public decimal Charge { get; set; }
+    }
+    
+    public class UpdateCurrentBtcLevel
+    {
+        public decimal CurrentLevel { get; set; }
+        public static string QueueName => "UpdateCurrentBtcLevel";
     }
 }

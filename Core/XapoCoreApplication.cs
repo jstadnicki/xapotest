@@ -41,16 +41,34 @@ namespace Core
                 exclusive: false,
                 autoDelete: false,
                 arguments: null);
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += OnMessageReceived;
+            var buyCommandConsumer = new EventingBasicConsumer(channel);
+            buyCommandConsumer.Received += OnBuyCommandReceived;
             channel.BasicConsume(queue: BuyCommand.QueueName,
                 autoAck: true,
-                consumer: consumer);
+                consumer: buyCommandConsumer);
+            
+            channel.QueueDeclare(UpdateCurrentBtcLevel.QueueName,
+                durable: false,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
+            var updateCurrentBtcLevelConsumer = new EventingBasicConsumer(channel);
+            updateCurrentBtcLevelConsumer.Received += OnEventingBasicConsumerReceived;
+            channel.BasicConsume(queue: UpdateCurrentBtcLevel.QueueName,
+                autoAck: true,
+                consumer: updateCurrentBtcLevelConsumer);
 
             Console.ReadLine();
         }
 
-        private void OnMessageReceived(object? sender, BasicDeliverEventArgs e)
+        private void OnEventingBasicConsumerReceived(object? sender, BasicDeliverEventArgs e)
+        {
+            var json = Encoding.UTF8.GetString(e.Body.ToArray());
+            var command = _json.Deserialize<UpdateCurrentBtcLevel>(json);
+            _currentBtc = command.CurrentLevel;
+        }
+
+        private void OnBuyCommandReceived(object? sender, BasicDeliverEventArgs e)
         {
             var json = Encoding.UTF8.GetString(e.Body.ToArray());
             var command = _json.Deserialize<BuyCommand>(json);

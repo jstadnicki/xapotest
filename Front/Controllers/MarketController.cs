@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Front.BuyCommand;
+using Front.Orders;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,5 +30,19 @@ namespace Front.Controllers
             await _mediator.Send(request);
             return Ok();
         }
+        
+        // [HttpPost]
+        // [ProducesResponseType(200)]
+        // [ProducesResponseType(500)]
+        // public async Task<List<Order>> Get()
+        // {
+        //     var request = new OrdersQuery();
+        //     var orders = await _mediator.Send(request);
+        //     return orders;
+        // }
+    }
+
+    public class Order
+    {
     }
 }

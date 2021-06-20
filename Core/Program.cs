@@ -44,4 +44,10 @@ namespace Core
         public decimal Amount { get; set; }
         public static string QueueName => "BuyCommand";
     }
+
+    public class UpdateCurrentBtcLevel
+    {
+        public decimal CurrentLevel { get; set; }
+        public static string QueueName => "UpdateCurrentBtcLevel";
+    }
 }

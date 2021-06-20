@@ -1,8 +1,6 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using Common;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using XapoWrappers;
 
 namespace RabitQueueWrapper
@@ -29,21 +27,6 @@ namespace RabitQueueWrapper
 
                 channel.BasicPublish(exchange: "", routingKey: queue, basicProperties: null, body: body);
             }
-        }
-
-        public void Subscribe(string queueName, EventHandler<BasicDeliverEventArgs> onMessageReceived)
-        {
-            var factory = new ConnectionFactory() { HostName = "localhost" };
-            using var connection = factory.CreateConnection();
-            using var channel = connection.CreateModel();
-            
-            channel.QueueDeclare(queueName, 
-                durable: false,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null);
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += onMessageReceived;
         }
     }
 }

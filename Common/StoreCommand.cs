@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Core
+namespace Common
 {
     public class StoreCommand
     {

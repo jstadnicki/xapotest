@@ -1,4 +1,4 @@
-﻿namespace Core
+﻿namespace Common
 {
     public class UpdateCurrentBtcLevel
     {

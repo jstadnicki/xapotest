@@ -36,18 +36,4 @@ namespace Core
             }
         }
     }
-
-    public class BuyCommand
-    {
-        public Guid PersonId { get; set; }
-        public CurrencyType Currency { get; set; }
-        public decimal Amount { get; set; }
-        public static string QueueName => "BuyCommand";
-    }
-
-    public class UpdateCurrentBtcLevel
-    {
-        public decimal CurrentLevel { get; set; }
-        public static string QueueName => "UpdateCurrentBtcLevel";
-    }
 }

@@ -16,7 +16,7 @@ namespace RabitQueueWrapper
 
         public void Send<T>(T command, string queue)
         {
-            var factory = new ConnectionFactory() { HostName = "localhost" };
+            var factory = new ConnectionFactory() { HostName = "rabbit" };
             using(var connection = factory.CreateConnection())
             using(var channel = connection.CreateModel())
             {

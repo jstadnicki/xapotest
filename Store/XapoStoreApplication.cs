@@ -21,7 +21,7 @@ namespace Core
             _json = json;
             _queue = queue;
             _dbContext = dbContext;
-            _factory = new ConnectionFactory() {HostName = "localhost"};
+            _factory = new ConnectionFactory() {HostName = "rabbit"};
         }
 
         public void Run()

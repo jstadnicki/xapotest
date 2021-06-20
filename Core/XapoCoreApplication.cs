@@ -28,7 +28,7 @@ namespace Core
             _httpClientFactory = httpClientFactory;
             _queue = queue;
             _priceProvider = priceProvider;
-            _factory = new ConnectionFactory() {HostName = "localhost", Password = "guest", UserName = "guest"};
+            _factory = new ConnectionFactory() {HostName = "rabbit", Password = "guest", UserName = "guest"};
         }
 
         public void RunAsync()

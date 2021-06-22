@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -28,7 +29,9 @@ namespace Core
                     }).UseConsoleLifetime();
 
             var host = builder.Build();
-
+            Console.WriteLine("Await 10s for rabbit...");
+            Task.Delay(25*1000).GetAwaiter().GetResult();
+            Console.WriteLine("Store Store Store");
             using var serviceScope = host.Services.CreateScope();
             var services = serviceScope.ServiceProvider;
             try
@@ -45,7 +48,10 @@ namespace Core
 
             try
             {
+                Console.WriteLine("store running");
                 services.GetRequiredService<XapoStoreApplication>().Run();
+                host.Run();
+                Console.WriteLine("store closing");
             }
             catch (Exception ex)
             {

@@ -17,6 +17,8 @@ namespace Core
         private readonly IPriceProvider _priceProvider;
         private decimal _currentBtc;
         private readonly ConnectionFactory _factory;
+        private readonly IConnection _connection;
+        private readonly IModel _channel;
 
         public XapoCoreApplication(
             IJsonSerializer json,
@@ -28,36 +30,41 @@ namespace Core
             _httpClientFactory = httpClientFactory;
             _queue = queue;
             _priceProvider = priceProvider;
-            _factory = new ConnectionFactory() {HostName = "rabbit", Password = "guest", UserName = "guest"};
+            _factory = new ConnectionFactory() {HostName = "rabbit"};
+            _connection = _factory.CreateConnection();
+            _channel = _connection.CreateModel();
         }
 
         public void RunAsync()
         {
-            using var connection = _factory.CreateConnection();
-            using var channel = connection.CreateModel();
+            _channel.BasicQos(0, 1, false);
 
-            channel.QueueDeclare(BuyCommand.QueueName,
+            Console.WriteLine("core-runasync");
+            Console.WriteLine("core:declaring queues");
+            _channel.QueueDeclare(BuyCommand.QueueName,
                 durable: false,
                 exclusive: false,
                 autoDelete: false,
                 arguments: null);
-            var buyCommandConsumer = new EventingBasicConsumer(channel);
+            var buyCommandConsumer = new EventingBasicConsumer(_channel);
             buyCommandConsumer.Received += OnBuyCommandReceived;
-            channel.BasicConsume(queue: BuyCommand.QueueName,
+            Console.WriteLine("core:buy command");
+
+            _channel.BasicConsume(queue: BuyCommand.QueueName,
                 autoAck: true,
                 consumer: buyCommandConsumer);
-            
-            channel.QueueDeclare(UpdateCurrentBtcLevel.QueueName,
+
+            _channel.QueueDeclare(UpdateCurrentBtcLevel.QueueName,
                 durable: false,
                 exclusive: false,
                 autoDelete: false,
                 arguments: null);
-            var updateCurrentBtcLevelConsumer = new EventingBasicConsumer(channel);
+            var updateCurrentBtcLevelConsumer = new EventingBasicConsumer(_channel);
             updateCurrentBtcLevelConsumer.Received += OnEventingBasicConsumerReceived;
-            channel.BasicConsume(queue: UpdateCurrentBtcLevel.QueueName,
+            _channel.BasicConsume(queue: UpdateCurrentBtcLevel.QueueName,
                 autoAck: true,
                 consumer: updateCurrentBtcLevelConsumer);
-
+            Console.WriteLine("core:update btc");
             Console.ReadLine();
         }
 
@@ -70,6 +77,7 @@ namespace Core
 
         private void OnBuyCommandReceived(object? sender, BasicDeliverEventArgs e)
         {
+            Console.WriteLine("Core:BuyCommand");
             var json = Encoding.UTF8.GetString(e.Body.ToArray());
             var command = _json.Deserialize<BuyCommand>(json);
             HandleCommand(command);
@@ -85,6 +93,7 @@ namespace Core
 
             if (btcToBuy + _currentBtc < BtcLimit)
             {
+                Console.WriteLine("Core:->StoreBtcAsync");
                 var actualCharge = btcToBuy * currentRate;
                 StoreBtcAsync(command, btcToBuy, actualCharge);
             }
@@ -111,6 +120,4 @@ namespace Core
 
         public decimal BtcLimit => 100;
     }
-
-    
 }

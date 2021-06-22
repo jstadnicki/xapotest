@@ -12,6 +12,8 @@ namespace Core
     {
         private readonly IJsonSerializer _json;
         private readonly ConnectionFactory _factory;
+        private readonly IConnection _connection;
+        private readonly IModel _channel;
         private decimal _btcLevel;
         private readonly IXapoQueue _queue;
         private readonly XapoContext _dbContext;
@@ -22,6 +24,8 @@ namespace Core
             _queue = queue;
             _dbContext = dbContext;
             _factory = new ConnectionFactory() {HostName = "rabbit"};
+            _connection = _factory.CreateConnection();
+            _channel = _connection.CreateModel();
         }
 
         public void Run()
@@ -32,17 +36,14 @@ namespace Core
 
         private void Subscribe()
         {
-            using var connection = _factory.CreateConnection();
-            using var channel = connection.CreateModel();
-
-            channel.QueueDeclare(StoreCommand.QueueName,
+            _channel.QueueDeclare(StoreCommand.QueueName,
                 durable: false,
                 exclusive: false,
                 autoDelete: false,
                 arguments: null);
-            var consumer = new EventingBasicConsumer(channel);
+            var consumer = new EventingBasicConsumer(_channel);
             consumer.Received += OnMessageReceived;
-            channel.BasicConsume(queue: StoreCommand.QueueName,
+            _channel.BasicConsume(queue: StoreCommand.QueueName,
                 autoAck: true,
                 consumer: consumer);
             
@@ -51,6 +52,7 @@ namespace Core
 
         private void OnMessageReceived(object? _, BasicDeliverEventArgs e)
         {
+            Console.WriteLine("store:StoreCommand");
             var json = Encoding.UTF8.GetString(e.Body.ToArray());
             var command = _json.Deserialize<StoreCommand>(json);
             if (command.BtcAmount + _btcLevel <= 100)

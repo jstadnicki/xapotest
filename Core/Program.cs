@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -28,7 +29,14 @@ namespace Core
 
             try
             {
+                Console.WriteLine("Await 10s for rabbit...");
+                Task.Delay(25*1000).GetAwaiter().GetResult();
+                Console.WriteLine("core core core");
                 services.GetRequiredService<XapoCoreApplication>().RunAsync();
+                Console.WriteLine("core:update btc");
+
+                host.Run();
+                Console.WriteLine("core is dead");
             }
             catch (Exception ex)
             {

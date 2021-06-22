@@ -1,4 +1,6 @@
-﻿namespace XapoWrappers
+﻿using Common;
+
+namespace XapoWrappers
 {
     public interface IXapoQueue
     {

@@ -2,7 +2,7 @@ version: "3.9"
 services:
   front:
     depends_on:
-#      - "mssql"
+      - "mssql"
       - "rabbit"
     build:
       context: .
@@ -16,28 +16,31 @@ services:
     volumes:
        - ./cert/:/https/
     ports:
-      - "5000:80"
-      - "5001:443"
-#  core:
-#    depends_on:
-#      - "rabbit"
-#    build:
-#      context: .
-#      dockerfile: ./Core/Dockerfile
-#  store:
-#    depends_on:
-#      - "mssql"
-#      - "rabbit"
-#    build:
-#      context: .
-#      dockerfile: ./Store/Dockerfile
+      - "5000:5000"
+      - "5001:5001"
+  core:
+    depends_on:
+      - "rabbit"
+    build:
+      context: .
+      dockerfile: ./Core/Dockerfile
+  store:
+    depends_on:
+      - "mssql"
+      - "rabbit"
+    build:
+      context: .
+      dockerfile: ./Store/Dockerfile
   rabbit:
     image: rabbitmq:3-management
-#  mssql:
-#    environment:
-#      - ACCEPT_EULA=Y
-#      - MSSQL_SA_PASSWORD=passWORD123#@!
-#    image: mcr.microsoft.com/mssql/server:2019-latest
-#    ports:
-#      - "1433:1433"
+    ports:
+      - "15672:15672"
+      - "55673:55673"
+  mssql:
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=passWORD123#@!
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    ports:
+      - "1433:1433"
   

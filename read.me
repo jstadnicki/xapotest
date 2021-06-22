@@ -1,1 +1,20 @@
+BUILD:
 docker-compose  build --parallel
+
+RUN
+docker-compose up
+
+NOTE:
+
+Curl to get transactions:
+curl -X GET "https://localhost:5000/Market" -H  "accept: text/plain"
+
+Curl to post transaction:
+curl -X POST "https://localhost:5000/Market?personId=6082e7b1-62fc-47d0-87a6-7e63e792e715&currency=1&amount=100" -H  "accept: */*" -d ""
+where:
+* personId = must be a guid
+* currency must be a values 1-3
+** 1-usd
+** 2-gbp
+** 3-eur
+* amount, range 1-1000000000
